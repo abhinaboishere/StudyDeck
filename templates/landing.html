@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Deck — Turn ideas into memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+  (function(){
+    var t = localStorage.getItem('studydeck-theme') || 'light';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+</head>
+<body class="landing-page">
+<main class="landing-shell">
+  <section class="landing-copy">
+    <div class="landing-brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </div>
+    <p class="landing-kicker">A smarter way to study</p>
+    <h1>Meet your ideas<br><em>in a new form.</em></h1>
+    <p class="landing-description">Turn PDFs, images, and video links into flashcards, clear notes, and quizzes that make knowledge stick.</p>
+    <div class="landing-actions">
+      <a class="landing-primary" href="{{ url_for('login') }}">Log in <span>&rarr;</span></a>
+      <a class="landing-secondary" href="{{ url_for('signup') }}">Create an account</a>
+    </div>
+    <p class="landing-footnote">Your next breakthrough can start with one page.</p>
+  </section>
+
+  <section class="memory-orbit" aria-label="Study Deck transforms your learning material">
+    <div class="orbit-glow"></div>
+    <div class="orbit orbit-one"></div>
+    <div class="orbit orbit-two"></div>
+    <div class="orbit-card orbit-card-left"><span class="orbit-card-label">PDF</span><strong>chapter.pdf</strong><small>12 pages</small></div>
+    <div class="orbit-card orbit-card-top"><span class="orbit-card-label pink-label">NOTES</span><strong>Key ideas</strong><small>5 highlights</small></div>
+    <div class="orbit-card orbit-card-right"><span class="orbit-card-label orange-label">QUIZ</span><strong>Ready?</strong><small>10 questions</small></div>
+    <div class="orbit-core">
+      <div class="core-book">
+        <span></span><span></span><span></span>
+      </div>
+      <strong>Study<br>Deck</strong>
+    </div>
+    <div class="orbit-dot dot-a"></div><div class="orbit-dot dot-b"></div><div class="orbit-dot dot-c"></div>
+  </section>
+</main>
+</body>
+</html>

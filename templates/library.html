@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Library — Study Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+  (function(){
+    var t = localStorage.getItem('studydeck-theme') || 'light';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      <a class="back-pill" href="{{ url_for('index') }}">&larr; Study Deck</a>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeToggle" title="Toggle dark mode" type="button">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <header class="brand">
+    <div>
+      <h1>My Library</h1>
+      <span>Every file you've turned into a study pack</span>
+    </div>
+  </header>
+
+  {% if uploads %}
+  <div class="library-list">
+    {% for u in uploads %}
+    <div class="lib-item type-{{ u.file_type }}">
+      <a class="lib-left" href="{{ url_for('library_item', upload_id=u.id) }}">
+        <span class="lib-badge {{ u.file_type }}">{{ u.file_type }}</span>
+        <div>
+          <div class="lib-name">{{ u.filename }}</div>
+          <div class="lib-meta"><span class="lib-time" data-iso="{{ u.uploaded_at_iso }}">Loading date…</span></div>
+        </div>
+      </a>
+      <div class="lib-stats">{{ u.card_count }} cards · {{ u.quiz_count }} quiz Qs</div>
+      <form action="{{ url_for('delete_library_item', upload_id=u.id) }}" method="POST" onsubmit="return confirm('Delete this study pack? This can\'t be undone.');">
+        <button type="submit" class="lib-delete" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    Nothing here yet. <a href="{{ url_for('index') }}">Upload your first file</a> to get started.
+  </div>
+  {% endif %}
+</div>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script>
+  // Server stores upload times in UTC; convert to the viewer's own local
+  // time here instead of showing the raw UTC value as if it were local.
+  document.querySelectorAll('.lib-time').forEach(function (el) {
+    var d = new Date(el.dataset.iso);
+    if (isNaN(d.getTime())) { el.textContent = 'Unknown date'; return; }
+    el.textContent = d.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    });
+  });
+</script>
+</body>
+</html>

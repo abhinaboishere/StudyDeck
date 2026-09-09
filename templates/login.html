@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in — Study Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+  (function(){
+    var t = localStorage.getItem('studydeck-theme') || 'light';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+</head>
+<body>
+<div class="wrap" style="max-width:760px;">
+  <div class="auth-panel">
+    <h1>Study Deck</h1>
+    <p class="sub">Log in to your account</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}{% for m in messages %}<div class="flash-msg">{{ m }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="password" name="password" required>
+          <button type="button" class="pass-toggle" data-target="password" aria-label="Show password">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="auth-btn">Log in</button>
+    </form>
+
+    <div class="switch-link">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.pass-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var input = document.getElementById(btn.dataset.target);
+      var open = btn.querySelector('.eye-open');
+      var closed = btn.querySelector('.eye-closed');
+      if (input.type === 'password') {
+        input.type = 'text'; open.style.display = 'none'; closed.style.display = 'block';
+      } else {
+        input.type = 'password'; open.style.display = 'block'; closed.style.display = 'none';
+      }
+    });
+  });
+</script>
+</body>
+</html>

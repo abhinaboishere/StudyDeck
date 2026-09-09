@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Deck — Smart Flashcard Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+  // Apply saved theme before paint, to avoid a flash of the wrong theme.
+  (function(){
+    var t = localStorage.getItem('studydeck-theme') || 'light';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      {% if preloaded_json %}
+        <a class="back-pill" href="{{ url_for('library') }}">&larr; My Library</a>
+      {% endif %}
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeToggle" title="Toggle dark mode" type="button">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+      </button>
+      {% if current_user.avatar_data %}
+        <a href="{{ url_for('settings') }}" title="Settings"><img class="avatar-mini" src="{{ current_user.avatar_data }}" alt=""></a>
+      {% else %}
+        <a href="{{ url_for('settings') }}" title="Settings" class="avatar-mini-placeholder" style="text-decoration:none;">{{ user_email[0]|upper }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if preloaded_json %}
+    <div class="lib-view-header">
+      <div class="lib-view-name" id="libViewName">Loading…</div>
+      <div class="lib-view-date" id="libViewDate"></div>
+    </div>
+  {% else %}
+    <header class="brand">
+      <div class="brand-title-row">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <h1>Study Deck</h1>
+          <span>PDFs, images &amp; video links — turned into flashcards, notes &amp; a quiz</span>
+        </div>
+      </div>
+      <button class="reset-link" id="resetBtn" style="display:none;" type="button">Back</button>
+    </header>
+
+    <div class="welcome-note">
+      <span class="welcome-note-mark">✦</span>
+      <div><strong>Welcome back.</strong> Bring something curious and we’ll turn it into a study session.</div>
+    </div>
+
+    <div id="uploadZone" class="upload-zone">
+      <h2>Drop a file here</h2>
+      <p>PDF or a photo of a page —<br>anything with real content to study from.</p>
+      <button class="upload-btn" id="browseBtn">Choose a file</button>
+      <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.webp">
+      <div class="type-row">
+        <span class="type-chip">PDF</span>
+        <span class="type-chip">Image</span>
+      </div>
+    </div>
+
+    <div class="url-zone">
+      <h2>Or paste a video link</h2>
+      <p>YouTube videos — we'll use the captions if available, or transcribe the audio if not.</p>
+      <div class="url-input-row">
+        <input type="url" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=...">
+        <button class="upload-btn" id="videoUrlBtn">Generate</button>
+      </div>
+    </div>
+
+    <a class="library-cta" href="{{ url_for('library') }}">
+      <div class="library-cta-left">
+        <div class="library-cta-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <div class="library-cta-title">My Library</div>
+          <div class="library-cta-sub">Every past upload, saved and ready to revisit</div>
+        </div>
+      </div>
+      <div class="library-cta-arrow">→</div>
+    </a>
+  {% endif %}
+
+  <div id="progressBox" class="progress-box" style="display:none;margin-top:22px;">
+    <div class="step" id="progressStep">Reading your file…</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <button class="cancel-btn" id="cancelBtn" type="button">Cancel</button>
+  </div>
+
+  <div id="errorBox" class="error-box" style="display:none;margin-top:22px;"></div>
+
+  <div id="fileMeta" class="file-meta" style="display:none;margin-top:26px;">
+    <span id="fileName"></span>
+    <span id="fileStats"></span>
+  </div>
+
+  <div id="tabs" class="tabs" style="display:none;">
+    <button class="tab active" data-tab="cards">Flashcards</button>
+    <button class="tab" data-tab="notes">Key notes</button>
+    <button class="tab" data-tab="quiz">Quiz</button>
+  </div>
+
+  <div id="panel" class="panel" style="display:none;"></div>
+</div>
+<script>
+  window.PRELOADED_STUDY_PACK = {{ preloaded_json | safe if preloaded_json else 'null' }};
+</script>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

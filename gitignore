@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+flash_card_env/
+venv/
+uploads/*
+!uploads/.gitkeep
+.DS_Store
+config.json
+.env
